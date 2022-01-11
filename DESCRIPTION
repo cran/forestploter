@@ -1,0 +1,23 @@
+Package: forestploter
+Title: Create Flexible Forest Plot
+Version: 0.0.1
+Authors@R: person(given="Alimu", 
+                 family = "Dayimu",
+                 email = "ad938@cam.ac.uk",
+                 role = c("aut", "cre"),
+                 comment = c(ORCID = "0000-0001-9998-7463"))
+Description: Create forest plot based on the layout of the data. Confidence interval in multiple columns by groups can be done easily. Editing plot, inserting/adding text, applying theme to the plot and much more.
+License: MIT + file LICENSE
+URL: https://github.com/adayim/forestploter
+BugReports: https://github.com/adayim/forestploter/issues
+Encoding: UTF-8
+RoxygenNote: 7.1.2
+Imports: grid, gridExtra, gtable
+Suggests: rmarkdown, knitr
+VignetteBuilder: knitr
+NeedsCompilation: no
+Packaged: 2022-01-10 21:59:32 UTC; alimd
+Author: Alimu Dayimu [aut, cre] (<https://orcid.org/0000-0001-9998-7463>)
+Maintainer: Alimu Dayimu <ad938@cam.ac.uk>
+Repository: CRAN
+Date/Publication: 2022-01-11 19:32:49 UTC
