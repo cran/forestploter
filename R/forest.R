@@ -15,6 +15,9 @@
 #' @param ref_line X-axis coordinates of zero line, default is 1.
 #' @param vert_line Numerical vector, add additional vertical line at given value.
 #' @param ci_column Column number of the data the CI will be displayed.
+#' @param is_summary A logical vector indicating if the value is a summary value,
+#' which will have a diamond shape for the estimate. Can not be used with multiple
+#' group forestplot.
 #' @param xlim Limits for the x axis as a vector of length 2, i.e. c(low, high). It
 #' will take the minimum and maximum of the lower and upper value if not provided.
 #' @param xaxis Set X-axis breaks points and labels, should use \code{\link{set_xaxis}}.
@@ -41,6 +44,7 @@ forest <- function(data,
                    ref_line = 1,
                    vert_line = NULL,
                    ci_column,
+                   is_summary = NULL,
                    xlim = NULL,
                    xaxis = NULL,
                    arrow_lab = NULL,
@@ -77,6 +81,10 @@ forest <- function(data,
   if(length(unique(c(length(est), length(lower), length(upper)))) != 1)
       stop("Estimate, lower and upper should have the same length.")
 
+  # Check length for the summary
+  if(!is.null(is_summary) && length(is_summary) != nrow(data))
+    stop("is_summary should have same legnth as data rownumber.")
+
   if(inherits(est, "list") | inherits(lower, "list") | inherits(upper, "list")){
 
     if(!inherits(est, "list") | !inherits(lower, "list") | !inherits(upper, "list"))
@@ -93,6 +101,10 @@ forest <- function(data,
     # If color is given and not have the same length as group number
     if(group_num > 1 & length(theme$ci$col) == 1)
       theme$ci$col <- col_set[1:group_num]
+
+    # If line type is given and not have the same length as group number
+    if(group_num > 1 & length(theme$ci$lty) == 1)
+      theme$ci$lty <- rep_len(theme$ci$lty, group_num)
 
     # Make legend multiple
     if(group_num > 1 & length(theme$ci$pch) == 1)
@@ -113,6 +125,7 @@ forest <- function(data,
     # Get color and pch
     color_list <- rep(theme$ci$col, each = length(ci_column))
     pch_list <- rep(theme$ci$pch, each = length(ci_column))
+    lty_list <- rep(theme$ci$lty, each = length(ci_column))
 
     # Check nudge_y
     if(nudge_y >= 1 || nudge_y < 0)
@@ -147,6 +160,7 @@ forest <- function(data,
     ci_col_list <- ci_column
     color_list <- theme$ci$col
     pch_list <- theme$ci$pch
+    lty_list <- theme$ci$lty
 
     group_num <- 1
 
@@ -156,6 +170,9 @@ forest <- function(data,
     sizes <- list(sizes)
 
   }
+
+  if(group_num > 1 || is.null(is_summary))
+    is_summary <- rep(FALSE, nrow(data))
 
   # Set xlim to minimum and maximum value of the CI
   if(is.null(xlim)){
@@ -205,14 +222,26 @@ forest <- function(data,
     for(i in 1:nrow(data)){
       if(is.na(est[[col_num]][i]))
         next
-      draw_ci <- makeci(est = est[[col_num]][i],
-                        lower = lower[[col_num]][i],
-                        upper = upper[[col_num]][i],
-                        size = sizes[[col_num]][i],
-                        xlim = xlim,
-                        pch = pch_list[col_num],
-                        nudge_y = nudge_y[col_num],
-                        color = color_list[col_num])
+      
+      if(is_summary[i]){
+        draw_ci <- make_summary(est = est[[col_num]][i],
+                                lower = lower[[col_num]][i],
+                                upper = upper[[col_num]][i],
+                                size = sizes[[col_num]][i],
+                                xlim = xlim,
+                                gp = theme$summary)
+      }else {
+        draw_ci <- makeci(est = est[[col_num]][i],
+                          lower = lower[[col_num]][i],
+                          upper = upper[[col_num]][i],
+                          size = sizes[[col_num]][i],
+                          xlim = xlim,
+                          pch = pch_list[col_num],
+                          lty = lty_list[col_num],
+                          nudge_y = nudge_y[col_num],
+                          color = color_list[col_num])
+      }
+      
 
       gt <- gtable_add_grob(gt, draw_ci,
                             t = i + 1,
@@ -227,7 +256,7 @@ forest <- function(data,
   tot_row <- nrow(gt)
 
   # Prepare X axis
-  x_axis <- make_xais(at = xaxis$break_at,
+  x_axis <- make_xaxis(at = xaxis$break_at,
                       label_at = xaxis$label_at,
                       labels = xaxis$label_value,
                       gp = theme$xaxis,
@@ -314,6 +343,7 @@ forest <- function(data,
     legend <- theme$legend
     legend$pch <- theme$ci$pch
     legend$color <- theme$ci$col
+    legend$lty <- theme$ci$lty
 
 
     leg_grob <- do.call(legend_grob, legend)
@@ -345,8 +375,6 @@ forest <- function(data,
 
   class(gt) <- union("forestplot", class(gt))
 
-  attributes(gt)$data.dim <- dim(data)
-
   return(gt)
 
 }
@@ -354,7 +382,14 @@ forest <- function(data,
 
 # plot
 #' @export
-plot.forestplot <- function(x,...){
+plot.forestplot <- function(x, autofit = FALSE, ...){
+  
+  if(autofit){
+    # Auto fit the page
+    x$widths <- unit(rep(1/ncol(x), ncol(x)), "npc")
+    x$heights <- unit(rep(1/nrow(x), nrow(x)), "npc")
+  }
+
   grid.newpage()
   grid.draw(x)
 }
