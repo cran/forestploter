@@ -50,7 +50,7 @@ p <- forest(dt[,c(1:3, 8:9)],
             ref_line = 1,
             arrow_lab = c("Placebo Better", "Treatment Better"),
             xlim = c(0, 4),
-            xaxis = set_xaxis(break_at = c(0.5, 1, 2, 3)),
+            ticks_at = c(0.5, 1, 2, 3),
             footnote = "This is the demo data. Please feel free to change\nanything you want.",
             theme = tm)
 
