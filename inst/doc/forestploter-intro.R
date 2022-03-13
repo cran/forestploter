@@ -1,6 +1,7 @@
 ## ---- include = FALSE---------------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
+  dpi=300,
   comment = "#>"
 )
 
@@ -34,13 +35,7 @@ dt$`HR (95% CI)` <- ifelse(is.na(dt$se), "",
                                      dt$est, dt$low, dt$hi))
 head(dt)
 
-## ----simple-plot, fig.width  = 7, fig.height = 6------------------------------
-# Define theme
-tm <- forest_theme(base_size = 10,
-                   refline_col = "red",
-                   footnote_col = "#636363",
-                   footnote_fontface = "italic")
-
+## ----simple-plot, out.width="80%", fig.width  = 8, fig.height = 6.5-----------
 p <- forest(dt[,c(1:3, 8:9)],
             est = dt$est,
             lower = dt$low, 
@@ -51,14 +46,61 @@ p <- forest(dt[,c(1:3, 8:9)],
             arrow_lab = c("Placebo Better", "Treatment Better"),
             xlim = c(0, 4),
             ticks_at = c(0.5, 1, 2, 3),
-            footnote = "This is the demo data. Please feel free to change\nanything you want.",
-            theme = tm)
+            footnote = "This is the demo data. Please feel free to change\nanything you want.")
 
 # Print plot
 plot(p)
 
 
-## ----edit-plot, fig.width  = 7, fig.height = 7--------------------------------
+## ----simple-plot-theme, out.width="80%", fig.width  = 7, fig.height = 6-------
+dt_tmp <- rbind(dt[-1, ], dt[1, ])
+dt_tmp[nrow(dt_tmp), 1] <- "Overall"
+
+# Define theme
+
+tm <- forest_theme(base_size = 10,
+                   # Confidence interval point shape, line type/color/width
+                   ci_pch = 16,
+                   ci_col = "#762a83",
+                   ci_lty = 1,
+                   ci_lwd = 1.5,
+                   ci_Theight = 0.2, # Set an T end at the end of CI 
+                   # Reference line width/type/color
+                   refline_lwd = 1,
+                   refline_lty = "dashed",
+                   refline_col = "grey20",
+                   # Vertical line width/type/color
+                   vertline_lwd = 1,
+                   vertline_lty = "dashed",
+                   vertline_col = "grey20",
+                   # Change summary color for filling and borders
+                   summary_fill = "#4575b4",
+                   summary_col = "#4575b4",
+                   # Footnote font size/face/color
+                   footnote_cex = 0.6,
+                   footnote_fontface = "italic",
+                   footnote_col = "blue")
+
+
+pt <- forest(dt_tmp[,c(1:3, 8:9)],
+            est = dt_tmp$est,
+            lower = dt_tmp$low, 
+            upper = dt_tmp$hi,
+            sizes = dt_tmp$se,
+            is_summary = c(rep(FALSE, nrow(dt_tmp)-1), TRUE),
+            ci_column = 4,
+            ref_line = 1,
+            arrow_lab = c("Placebo Better", "Treatment Better"),
+            xlim = c(0, 4),
+            ticks_at = c(0.5, 1, 2, 3),
+            footnote = "This is the demo data. Please feel free to change\nanything you want.",
+            theme = tm)
+
+# Print plot
+plot(pt)
+
+
+## ----edit-plot, out.width="80%", fig.width  = 8, fig.height = 7.5-------------
 # Change text color in row 3
 g <- edit_plot(p, row = 3, gp = gpar(col = "red", fontface = "italic"))
 
@@ -92,7 +134,7 @@ g <- insert_text(g,
 plot(g)
 
 
-## ----multiple-group, fig.width  = 7.5, fig.height = 7.5-----------------------
+## ----multiple-group, out.width="80%", fig.width  = 8, fig.height = 8----------
 dt <- read.csv(system.file("extdata", "example_data.csv", package = "forestploter"))
 # indent the subgroup if there is a number in the placebo column
 dt$Subgroup <- ifelse(is.na(dt$Placebo), 
