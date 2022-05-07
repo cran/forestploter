@@ -181,6 +181,34 @@ p <- forest(dt[,c(1, 19, 21, 20, 22)],
 
 plot(p)
 
+## ----multiple-param, out.width="80%", fig.width  = 8, fig.height = 8----------
+
+p <- forest(dt[,c(1, 19, 21, 20, 22)],
+            est = list(dt$est_gp1,
+                       dt$est_gp2,
+                       dt$est_gp3,
+                       dt$est_gp4),
+            lower = list(dt$low_gp1,
+                         dt$low_gp2,
+                         dt$low_gp3,
+                         dt$low_gp4), 
+            upper = list(dt$hi_gp1,
+                         dt$hi_gp2,
+                         dt$hi_gp3,
+                         dt$hi_gp4),
+            ci_column = c(3, 5),
+            ref_line = c(1, 0),
+            vert_line = list(c(0.3, 1.4), c(0.6, 2)),
+            xlog = c(T, F),
+            arrow_lab = list(c("L1", "R1"), c("L2", "R2")),
+            xlim = list(c(0, 3), c(-1, 3)),
+            ticks_at = list(c(0.1, 0.5, 1, 2.5), c(-1, 0, 2)),
+            xlab = c("OR", "Beta"),
+            nudge_y = 0.2,
+            theme = tm)
+
+plot(p)
+
 ## ----eval=FALSE---------------------------------------------------------------
 #  # Base method
 #  png('rplot.png', res = 300, width = 7.5, height = 7.5, units = "in")
