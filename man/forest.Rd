@@ -17,9 +17,11 @@ forest(
   is_summary = NULL,
   xlim = NULL,
   ticks_at = NULL,
+  ticks_digits = 1,
   arrow_lab = NULL,
   xlab = NULL,
   footnote = NULL,
+  title = NULL,
   nudge_y = 0,
   theme = NULL
 )
@@ -66,6 +68,9 @@ for each column if not provided. This should be a list with the same length of
 provided, and will be calculated automatically for each column if not provided.
 This should be a list if different \code{ticks_at} for different column is desired.}
 
+\item{ticks_digits}{Number of digits for the x-axis, default is 1. This should be
+a numerical vector if different rounding will be applied to different column.}
+
 \item{arrow_lab}{Labels for the arrows, string vector of length two (left and
 right). The theme of arrow will inherit from the x-axis. This should be a list
 if different arrow labels for each column is desired.}
@@ -76,6 +81,8 @@ be provided if different \code{xlab} for different column is desired.}
 \item{footnote}{Footnote for the forest plot, will be aligned at left bottom
 of the plot. Please adjust the line length with line break to avoid the overlap
 with the arrow and/or x-axis.}
+
+\item{title}{The text for the title.}
 
 \item{nudge_y}{Horizontal adjustment to nudge groups by, must be within 0 to 1.}
 

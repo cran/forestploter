@@ -18,11 +18,16 @@ check_errors <- function(data,
                          is_summary,
                          xlim,
                          ticks_at,
+                         ticks_digits,
+                         title,
                          arrow_lab,
                          xlab){
 
   if(!is.numeric(ci_column))
     stop("ci_column must be numeric atomic vector.")
+
+  if(!is.null(title) && length(title) != 1)
+      stop("title must be of length 1.")
 
   # Check length
   if(length(unique(c(length(est), length(lower), length(upper)))) != 1)
@@ -43,6 +48,10 @@ check_errors <- function(data,
   # Check the xlab
   if(!is.null(xlab) && !length(xlab) %in% c(1, length(ci_column)))
     stop("xlab must be of length 1 or the same length as ci_column.")
+
+  # Check tick_digits
+  if(!is.numeric(ticks_digits) || !length(ticks_digits) %in% c(1, length(ci_column)))
+      stop("ticks_digits must be numeric of length 1 or same length as ci_column.")
 
   # If only one CI column
   if(length(ci_column) == 1){
