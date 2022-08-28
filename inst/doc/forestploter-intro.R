@@ -134,6 +134,44 @@ g <- insert_text(g,
 plot(g)
 
 
+## ----text-justification, out.width="80%", fig.width  = 7, fig.height = 3------
+dt <- dt[1:4, ]
+
+# Header center and content right
+tm <- forest_theme(core=list(fg_params=list(hjust = 1, x = 0.9),
+                             bg_params=list(fill = c("#edf8e9", "#c7e9c0", "#a1d99b"))),
+                   colhead=list(fg_params=list(hjust=0.5, x=0.5)))
+
+p <- forest(dt[,c(1:3, 8:9)],
+            est = dt$est,
+            lower = dt$low, 
+            upper = dt$hi,
+            sizes = dt$se,
+            ci_column = 4,
+            title = "Header center content right",
+            theme = tm)
+
+# Print plot
+plot(p)
+
+# Mixed justification
+tm <- forest_theme(core=list(fg_params=list(hjust=c(1, 0, 0, 0.5),
+                                            x=c(0.9, 0.1, 0, 0.5)),
+                             bg_params=list(fill = c("#f6eff7", "#d0d1e6", "#a6bddb", "#67a9cf"))),
+                   colhead=list(fg_params=list(hjust=c(1, 0, 0, 0, 0.5),
+                                               x=c(0.9, 0.1, 0, 0, 0.5))))
+
+p <- forest(dt[,c(1:3, 8:9)],
+            est = dt$est,
+            lower = dt$low, 
+            upper = dt$hi,
+            sizes = dt$se,
+            ci_column = 4,
+            title = "Mixed justification",
+            theme = tm)
+plot(p)
+
+
 ## ----multiple-group, out.width="80%", fig.width  = 8, fig.height = 8----------
 dt <- read.csv(system.file("extdata", "example_data.csv", package = "forestploter"))
 # indent the subgroup if there is a number in the placebo column
@@ -142,8 +180,8 @@ dt$Subgroup <- ifelse(is.na(dt$Placebo),
                       paste0("   ", dt$Subgroup))
 
 # NA to blank or NA will be transformed to carachter.
-dt$`n` <- ifelse(is.na(dt$Treatment), "", dt$Treatment)
-dt$`n ` <- ifelse(is.na(dt$Placebo), "", dt$Placebo)
+dt$n1 <- ifelse(is.na(dt$Treatment), "", dt$Treatment)
+dt$n2 <- ifelse(is.na(dt$Placebo), "", dt$Placebo)
 
 # Add two blank column for CI
 dt$`CVD outcome` <- paste(rep(" ", 20), collapse = " ")
@@ -181,25 +219,29 @@ p <- forest(dt[,c(1, 19, 21, 20, 22)],
 
 plot(p)
 
-## ----multiple-param, out.width="80%", fig.width  = 8, fig.height = 8----------
+## ----multiple-param, out.width="70%", fig.width  = 10, fig.height = 8---------
 
-p <- forest(dt[,c(1, 19, 21, 20, 22)],
+dt$`HR (95% CI)` <- ifelse(is.na(dt$est_gp1), "",
+                             sprintf("%.2f (%.2f to %.2f)",
+                                     dt$est_gp1, dt$low_gp1, dt$hi_gp1))
+dt$`Beta (95% CI)` <- ifelse(is.na(dt$est_gp2), "",
+                             sprintf("%.2f (%.2f to %.2f)",
+                                     dt$est_gp2, dt$low_gp2, dt$hi_gp2))
+
+tm <- forest_theme(arrow_type = "closed",
+                   arrow_label_just = "end")
+
+p <- forest(dt[,c(1, 21, 23, 22, 24)],
             est = list(dt$est_gp1,
-                       dt$est_gp2,
-                       dt$est_gp3,
-                       dt$est_gp4),
+                       dt$est_gp2),
             lower = list(dt$low_gp1,
-                         dt$low_gp2,
-                         dt$low_gp3,
-                         dt$low_gp4), 
+                         dt$low_gp2), 
             upper = list(dt$hi_gp1,
-                         dt$hi_gp2,
-                         dt$hi_gp3,
-                         dt$hi_gp4),
-            ci_column = c(3, 5),
+                         dt$hi_gp2),
+            ci_column = c(2, 4),
             ref_line = c(1, 0),
             vert_line = list(c(0.3, 1.4), c(0.6, 2)),
-            xlog = c(T, F),
+            x_trans = c("log", "none"),
             arrow_lab = list(c("L1", "R1"), c("L2", "R2")),
             xlim = list(c(0, 3), c(-1, 3)),
             ticks_at = list(c(0.1, 0.5, 1, 2.5), c(-1, 0, 2)),
@@ -219,4 +261,29 @@ plot(p)
 #  ggplot2::ggsave(filename = "rplot.png", plot = p,
 #                  dpi = 300,
 #                  width = 7.5, height = 7.5, units = "in")
+
+## ----eval=FALSE---------------------------------------------------------------
+#  # Get width and height
+#  p_wh <- get_wh(plot = p, unit = "in")
+#  png('rplot.png', res = 300, width = p_wh[1], height = p_wh[2], units = "in")
+#  p
+#  dev.off()
+#  
+#  # Or get scale
+#  get_scale <- function(plot,
+#                        width_wanted,
+#                        height_wanted,
+#                        unit = "in"){
+#    h <- convertHeight(sum(plot$heights), unit, TRUE)
+#    w <- convertWidth(sum(plot$widths), unit, TRUE)
+#    max(c(w/width_wanted,  h/height_wanted))
+#  }
+#  p_sc <- get_scale(plot = p, width_wanted = 6, height_wanted = 4, unit = "in")
+#  ggplot2::ggsave(filename = "rplot.png",
+#                  plot = p,
+#                  dpi = 300,
+#                  width = 6,
+#                  height = 4,
+#                  units = "in",
+#                  scale = p_sc)
 
