@@ -55,13 +55,15 @@ plot(p)
 ## ----simple-plot-theme, out.width="80%", fig.width  = 7, fig.height = 6-------
 dt_tmp <- rbind(dt[-1, ], dt[1, ])
 dt_tmp[nrow(dt_tmp), 1] <- "Overall"
-
+dt_tmp <- dt_tmp[1:11, ]
 # Define theme
 
 tm <- forest_theme(base_size = 10,
                    # Confidence interval point shape, line type/color/width
-                   ci_pch = 16,
+                   ci_pch = 15,
                    ci_col = "#762a83",
+                   ci_fill = "black",
+                   ci_alpha = 0.8,
                    ci_lty = 1,
                    ci_lwd = 1.5,
                    ci_Theight = 0.2, # Set an T end at the end of CI 
