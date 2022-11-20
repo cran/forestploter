@@ -48,11 +48,6 @@
 #' this in \code{x_trans}. Set this to \code{"log"} if x-axis tick marks assume values
 #'  are exponential, e.g. for logistic regression (OR), survival estimates (HR), Poisson
 #'  regression etc.
-#' @param xlog \strong{This will be deprecated, please define it in \code{x_trans}}.
-#' If TRUE, x-axis tick marks assume values are exponential, e.g.
-#' for logistic regression (OR), survival estimates (HR), Poisson regression etc.
-#' Provide a logical vector if different conversion for each \code{ci_column} is
-#' desired.
 #' @param xlab X-axis labels, it will be put under the x-axis. An atomic vector should
 #' be provided if different \code{xlab} for different column is desired.
 #' @param footnote Footnote for the forest plot, will be aligned at left bottom
@@ -85,7 +80,6 @@ forest <- function(data,
                    ticks_digits = 1L,
                    arrow_lab = NULL,
                    x_trans = "none",
-                   xlog = FALSE,
                    xlab = NULL,
                    footnote = NULL,
                    title = NULL,
@@ -94,16 +88,9 @@ forest <- function(data,
 
   check_errors(data = data, est = est, lower = lower, upper = upper, sizes = sizes,
                ref_line = ref_line, vert_line = vert_line, ci_column = ci_column,
-               xlog = xlog, is_summary = is_summary, xlim = xlim, ticks_at = ticks_at,
+               is_summary = is_summary, xlim = xlim, ticks_at = ticks_at,
                ticks_digits = ticks_digits, arrow_lab = arrow_lab, xlab = xlab,
                title = title, x_trans = x_trans)
-
-  # put message
-  if(any(xlog)){
-    message("xlog will be deprecated soon, please use the `x_trans` instead.")
-    x_trans <- rep("none", length(xlog))
-    x_trans[xlog] <- "log"
-  }
 
   # Set theme
   if(is.null(theme)){
@@ -125,6 +112,16 @@ forest <- function(data,
 
   if(!is.null(ticks_at) && !inherits(ticks_at, "list"))
     ticks_at <- rep(list(ticks_at), length(ci_column))
+
+  # ticks digits to accomodate ticks_at
+  if(ticks_digits == 1L & !is.null(ticks_at)){
+    if(is.list(ticks_at))
+      ticks_digits <- sapply(ticks_at, function(x){
+        max(nchar(gsub(".*\\.|^[^.]+$", "", as.character(x))))
+      })
+    else
+      ticks_digits <- max(nchar(gsub(".*\\.|^[^.]+$", "", as.character(ticks_digits))))
+  }
 
   if(length(ci_column) != length(ticks_digits))
     ticks_digits <- rep(ticks_digits, length(ci_column))
@@ -291,7 +288,7 @@ forest <- function(data,
     for(i in 1:nrow(data)){
       if(is.na(est[[col_num]][i]))
         next
-      
+
       if(is.na(lower[[col_num]][i]) || is.na(upper[[col_num]][i])){
         warning("Missing lower and/or upper limit on column", current_col, " row ", i)
         next
