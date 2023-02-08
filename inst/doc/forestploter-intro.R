@@ -35,7 +35,7 @@ dt$`HR (95% CI)` <- ifelse(is.na(dt$se), "",
                                      dt$est, dt$low, dt$hi))
 head(dt)
 
-## ----simple-plot, out.width="80%", fig.width  = 8, fig.height = 6.5-----------
+## ----simple-plot, out.width="80%", fig.width  = 8, fig.height = 6-------------
 p <- forest(dt[,c(1:3, 8:9)],
             est = dt$est,
             lower = dt$low, 
@@ -52,7 +52,7 @@ p <- forest(dt[,c(1:3, 8:9)],
 plot(p)
 
 
-## ----simple-plot-theme, out.width="80%", fig.width  = 7, fig.height = 6-------
+## ----simple-plot-theme, out.width="80%", fig.width  = 7, fig.height = 3.3-----
 dt_tmp <- rbind(dt[-1, ], dt[1, ])
 dt_tmp[nrow(dt_tmp), 1] <- "Overall"
 dt_tmp <- dt_tmp[1:11, ]
@@ -102,53 +102,7 @@ pt <- forest(dt_tmp[,c(1:3, 8:9)],
 plot(pt)
 
 
-## ----edit-plot, out.width="80%", fig.width  = 8, fig.height = 7.5-------------
-# Change text color in row 3
-g <- edit_plot(p, row = 3, gp = gpar(col = "red", fontface = "italic"))
-
-# Change color of the CI
-g <- edit_plot(g,
-               row = c(3, 6, 11, 13),
-               col = 4,
-               which = "ci",
-               gp = gpar(col = "green"))
-
-# Bold grouping text
-g <- edit_plot(g,
-               row = c(2, 5, 10, 13, 17, 20),
-               gp = gpar(fontface = "bold"))
-
-
-# Edit background of row 5
-g <- edit_plot(g, row = 5, which = "background",
-               gp = gpar(fill = "darkolivegreen1"))
-
-# Insert text at top
-g <- insert_text(g,
-                 text = "Treatment group",
-                 col = 2:3,
-                 part = "header",
-                 gp = gpar(fontface = "bold"))
-
-# Add underline at the bottom of the header
-g <- add_border(g, part = "header", row = 1, where = "top")
-g <- add_border(g, part = "header", row = 2, where = "bottom")
-g <- add_border(g, part = "header", row = 1, col = 2:3, 
-                gp = gpar(lwd = 2))
-
-
-# Insert text
-g <- insert_text(g,
-                 text = "This is a long text. Age and gender summarised above.\nBMI is next",
-                 row = 10,
-                 just = "left",
-                 gp = gpar(cex = 0.6, col = "green", fontface = "italic"))
-# Add border
-g <- add_border(g, row = 10, col = 1:3, where = "top")
-plot(g)
-
-
-## ----text-justification, out.width="80%", fig.width  = 7, fig.height = 3------
+## ----text-justification, out.width="80%", fig.width  = 7, fig.height = 2------
 dt <- dt[1:4, ]
 
 # Header center and content right
@@ -186,7 +140,7 @@ p <- forest(dt[,c(1:3, 8:9)],
 plot(p)
 
 
-## ----multiple-group, out.width="80%", fig.width  = 8, fig.height = 8----------
+## ----multiple-group, out.width="80%", fig.width  = 8, fig.height = 6.5--------
 dt <- read.csv(system.file("extdata", "example_data.csv", package = "forestploter"))
 # indent the subgroup if there is a number in the placebo column
 dt$Subgroup <- ifelse(is.na(dt$Placebo), 
@@ -233,7 +187,7 @@ p <- forest(dt[,c(1, 19, 21, 20, 22)],
 
 plot(p)
 
-## ----multiple-param, out.width="70%", fig.width  = 10, fig.height = 8---------
+## ----multiple-param, out.width="70%", fig.width  = 10, fig.height = 6.5-------
 
 dt$`HR (95% CI)` <- ifelse(is.na(dt$est_gp1), "",
                              sprintf("%.2f (%.2f to %.2f)",

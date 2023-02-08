@@ -1,3 +1,13 @@
+# forestploter 1.0.0
+
+* New function `add_grob`.
+* `add_text` and `insert_text` can parse math symbol. 
+* `edit_plot` accepts more paramters.
+* Point size in the forestplot will no longer be transformed.
+* Summary fill will inherit the summary color in the `forest_theme` function.
+* Better vignettes.
+* Fix an issue in with ticks digits in `forest`.
+
 # forestploter 0.2.3
 
 * Fixed a bug of legend point estimation color not changing.
