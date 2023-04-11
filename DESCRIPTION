@@ -1,6 +1,6 @@
 Package: forestploter
 Title: Create Flexible Forest Plot
-Version: 1.0.0
+Version: 1.1.0
 Authors@R: person(given="Alimu", 
                  family = "Dayimu",
                  email = "ad938@cam.ac.uk",
@@ -17,8 +17,8 @@ Suggests: gridtext, rmarkdown, knitr, vdiffr, testthat (>= 3.0.0), covr
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 NeedsCompilation: no
-Packaged: 2023-02-08 21:45:09 UTC; alimd
+Packaged: 2023-04-10 12:29:10 UTC; alimd
 Author: Alimu Dayimu [aut, cre] (<https://orcid.org/0000-0001-9998-7463>)
 Maintainer: Alimu Dayimu <ad938@cam.ac.uk>
 Repository: CRAN
-Date/Publication: 2023-02-08 22:10:02 UTC
+Date/Publication: 2023-04-11 01:20:05 UTC

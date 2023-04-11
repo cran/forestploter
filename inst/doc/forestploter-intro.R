@@ -26,7 +26,8 @@ dt$Placebo <- ifelse(is.na(dt$Placebo), "", dt$Placebo)
 dt$se <- (log(dt$hi) - log(dt$est))/1.96
 
 # Add blank column for the forest plot to display CI.
-# Adjust the column width with space. 
+# Adjust the column width with space, increase number of space below 
+# to have a larger area to draw the CI. 
 dt$` ` <- paste(rep(" ", 20), collapse = " ")
 
 # Create confidence interval column to display
@@ -218,6 +219,45 @@ p <- forest(dt[,c(1, 21, 23, 22, 24)],
             theme = tm)
 
 plot(p)
+
+## ----custom-ci, out.width="70%", fig.width  = 3, fig.height = 3---------------
+# Function to calculate Box plot values
+box_func <- function(x){
+  iqr <- IQR(x)
+  q3 <- quantile(x, probs = c(0.25, 0.5, 0.75), names = FALSE)
+  c("min" = q3[1] - 1.5*iqr, "q1" = q3[1], "med" = q3[2],
+    "q3" = q3[3], "max" = q3[3] + 1.5*iqr)
+}
+# Prepare data
+val <- split(ToothGrowth$len, list(ToothGrowth$supp, ToothGrowth$dose))
+val <- lapply(val, box_func)
+
+dat <- do.call(rbind, val)
+dat <- data.frame(Dose = row.names(dat),
+                  dat, row.names = NULL)
+
+dat$Box <- paste(rep(" ", 20), collapse = " ")
+
+# Draw single group box plot
+tm <- forest_theme(ci_Theight = 0.2)
+
+p <- forest(dat[,c(1, 7)],
+            est = dat$med,
+            lower = dat$min,
+            upper = dat$max,
+            # sizes = sizes,
+            fn_ci = make_boxplot,
+            ci_column = 2,
+            lowhinge = dat$q1, 
+            uphinge = dat$q3,
+            hinge_height = 0.2,
+            # values of the lowhinge and uphinge will be used as row values
+            index_args = c("lowhinge", "uphinge"), 
+            gp_box = gpar(fill = "black", alpha = 0.4),
+            theme = tm
+)
+p
+
 
 ## ----eval=FALSE---------------------------------------------------------------
 #  # Base method
