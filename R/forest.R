@@ -33,11 +33,12 @@
 #' Although many efforts have been made to automatically get a pretty ticks break,
 #' it will not give a perfect solution, especially if \code{'log2'} and \code{'log10'}
 #' defined for \code{x_trans}. Please provide this value if possible.
-#' @param ticks_digits Number of digits for the x-axis, default is \code{1L}. This
-#' should be a numerical vector if different rounding will be applied to different
-#' column. If an integer is specified, for example \code{1L}, trailing zeros after
-#' the decimal mark will be dropped. Specify numeric, for example \code{1}, to keep
-#' the trailing zero after the decimal mark.
+#' @param ticks_digits Number of digits for the x-axis, default is \code{NULL} to calculate
+#' an integer based on \code{ticks_at} if provided or \code{lower} and \code{upper} if not.
+#'  This should be a numerical vector if different rounding will be applied to different
+#'  column. If an integer is specified, for example \code{1L}, trailing zeros after 
+#' the decimal mark will be dropped. Specify numeric, for example  \code{1}, to keep
+#'  the trailing zero after the decimal mark.
 #' @param arrow_lab Labels for the arrows, string vector of length two (left and
 #' right). The theme of arrow will inherit from the x-axis. This should be a list
 #' if different arrow labels for each column is desired.
@@ -67,12 +68,14 @@
 #' Please refer to the \code{\link{make_summary}} function for the details of
 #'  these parameters.
 #' @param index_args A character vector, name of the arguments used for indexing
-#'  the row and coloumn. This should be the name of the arguments that is working
+#'  the row and column. This should be the name of the arguments that is working
 #' the same way as \code{est}, \code{lower} and \code{upper}. Check out the
 #' examples in the \code{\link{make_boxplot}}.
 #' @param theme Theme of the forest plot, see \code{\link{forest_theme}} for
 #' details.
 #' @param ... Other arguments passed on to the \code{fn_ci} and \code{fn_summary}.
+#' 
+#' @importFrom stats na.omit
 #'
 #'
 #' @return A \code{\link[gtable]{gtable}} object.
@@ -95,7 +98,7 @@ forest <- function(data,
                    is_summary = NULL,
                    xlim = NULL,
                    ticks_at = NULL,
-                   ticks_digits = 1L,
+                   ticks_digits = NULL,
                    arrow_lab = NULL,
                    x_trans = "none",
                    xlab = NULL,
@@ -148,22 +151,6 @@ forest <- function(data,
   if(!is.null(ticks_at) && !inherits(ticks_at, "list"))
     ticks_at <- rep(list(ticks_at), length(ci_column))
 
-  # ticks digits to accommodate ticks_at
-  if(length(ticks_digits) == 1 & !is.list(ticks_digits)){
-    if(ticks_digits == 1L & !is.null(ticks_at)){
-      if(is.list(ticks_at))
-        ticks_digits <- sapply(ticks_at, function(x){
-          max(nchar(gsub(".*\\.|^[^.]+$", "", as.character(x))))
-        })
-      else
-        ticks_digits <- max(nchar(gsub(".*\\.|^[^.]+$", "", as.character(ticks_digits))))
-    }
-  }
-
-
-  if(length(ci_column) != length(ticks_digits))
-    ticks_digits <- rep(ticks_digits, length(ci_column))
-
   if(!is.null(arrow_lab) && !inherits(arrow_lab, "list"))
     arrow_lab <- rep(list(arrow_lab), length(ci_column))
 
@@ -210,6 +197,9 @@ forest <- function(data,
   lty_list <- rep(theme$ci$lty, each = length(ci_column))
   lwd_list <- rep(theme$ci$lwd, each = length(ci_column))
 
+  # Positions of values in ci_column
+  gp_list <- rep_len(1:(length(lower)/group_num), length(lower))
+
   # Check nudge_y
   if(nudge_y >= 1 || nudge_y < 0)
     stop("`nudge_y` must be within 0 to 1.")
@@ -241,25 +231,6 @@ forest <- function(data,
     is_summary <- rep(FALSE, nrow(data))
   }
 
-  # Transform sizes if not unique and transformation is required.
-  # if(length(unique(stats::na.omit(unlist(sizes)))) != 1 & sizes_trans & group_num == 1){
-  #   # Get the maximum reciprocal of size
-  #   max_sizes <- sapply(sizes, function(x){
-  #     x <- sqrt(x)
-  #     max(x[!is_summary], na.rm = TRUE)
-  #   }, USE.NAMES = FALSE)
-  #
-  #   sizes <- lapply(sizes, function(x){
-  #     wi <- sqrt(x)
-  #     wi <- wi/max(max_sizes, na.rm = TRUE)
-  #     wi[is_summary] <- 1/length(max_sizes)
-  #     return(wi)
-  #   })
-  # }
-
-  # Positions of values in ci_column
-  gp_list <- rep_len(1:(length(lower)/group_num), length(lower))
-
   # Check exponential
   if(any(x_trans %in% c("log", "log2", "log10"))){
     for(i in seq_along(x_trans)){
@@ -278,6 +249,18 @@ forest <- function(data,
         }
       }
     }
+  }
+
+  # ticks digits auto calculation if missing
+  if(is.null(ticks_digits) & !is.null(ticks_at)){
+    if(is.list(ticks_at))
+      ticks_digits <- sapply(ticks_at, function(x){
+        max(count_decimal(x))
+      })
+    else
+      ticks_digits <- max(count_decimal(ticks_digits))
+    
+    ticks_digits <- as.integer(ticks_digits)
   }
 
   # Set xlim to minimum and maximum value of the CI
@@ -299,25 +282,22 @@ forest <- function(data,
                x_trans = x_trans[i])
   })
 
-  # Calculate heights
-  col_height <- apply(data, 1, function(x){
-                        max(convertHeight(stringHeight(x), "mm", valueOnly = TRUE))
-                      })
-  col_height <- unit(col_height, "mm")
-
-  # Add increase heights for multiple groups
-  if(group_num > 1){
-    heights <- group_num*0.7*col_height + theme$tab_theme$core$padding[2]
-    # Convert data to plot
-    gt <- tableGrob(data,
-                    theme = theme$tab_theme,
-                    heights = heights,
-                    rows = NULL)
-  }else{
-    gt <- tableGrob(data,
-                    theme = theme$tab_theme,
-                    rows = NULL)
+  # ticks digits auto calculation if missing
+  if(is.null(ticks_digits)){
+    if(is.list(ticks_at))
+      ticks_digits <- sapply(ticks_at, function(x){
+        count_zeros(x)
+      }, USE.NAMES = FALSE)
+    else{
+      ticks_digits <- count_zeros(ticks_at)
+    }
+    ticks_digits <- as.integer(ticks_digits)
   }
+
+  if(length(ci_column) != length(ticks_digits))
+    ticks_digits <- rep(ticks_digits, length(ci_column))
+
+  gt <- tableGrob(data, theme = theme$tab_theme, rows = NULL)
 
   # Do not clip text
   gt$layout$clip <- "off"
@@ -438,6 +418,7 @@ forest <- function(data,
   x_axis <- lapply(seq_along(xlim), function(i){
     make_xaxis(at = ticks_at[[i]],
                gp = theme$xaxis,
+               xlab_gp = theme$xlab,
                ticks_digits = ticks_digits[[i]],
                x0 = ref_line[i],
                xlim = xlim[[i]],

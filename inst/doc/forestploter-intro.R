@@ -141,8 +141,9 @@ p <- forest(dt[,c(1:3, 8:9)],
 plot(p)
 
 
-## ----multiple-group, out.width="80%", fig.width  = 8, fig.height = 6.5--------
+## ----multiple-group, out.width="80%", fig.width  = 8, fig.height = 5----------
 dt <- read.csv(system.file("extdata", "example_data.csv", package = "forestploter"))
+dt <- dt[1:7, ]
 # indent the subgroup if there is a number in the placebo column
 dt$Subgroup <- ifelse(is.na(dt$Placebo), 
                       dt$Subgroup,
@@ -156,6 +157,17 @@ dt$n2 <- ifelse(is.na(dt$Placebo), "", dt$Placebo)
 dt$`CVD outcome` <- paste(rep(" ", 20), collapse = " ")
 dt$`COPD outcome` <- paste(rep(" ", 20), collapse = " ")
 
+# Generate point estimation and 95% CI. Paste two CIs together and separate by line break.
+dt$ci1 <- paste(sprintf("%.1f (%.1f, %.1f)", dt$est_gp1, dt$low_gp1, dt$hi_gp1),
+                sprintf("%.1f (%.1f, %.1f)", dt$est_gp3, dt$low_gp3, dt$hi_gp3),
+                sep = "\n")
+dt$ci1[grepl("NA", dt$ci1)] <- "" # Any NA to blank
+
+dt$ci2 <- paste(sprintf("%.1f (%.1f, %.1f)", dt$est_gp2, dt$low_gp2, dt$hi_gp2),
+                sprintf("%.1f (%.1f, %.1f)", dt$est_gp4, dt$low_gp4, dt$hi_gp4),
+                sep = "\n")
+dt$ci2[grepl("NA", dt$ci2)] <- ""
+
 # Set-up theme
 tm <- forest_theme(base_size = 10,
                    refline_lty = "solid",
@@ -165,9 +177,11 @@ tm <- forest_theme(base_size = 10,
                    legend_name = "Group",
                    legend_value = c("Trt 1", "Trt 2"),
                    vertline_lty = c("dashed", "dotted"),
-                   vertline_col = c("#d6604d", "#bababa"))
+                   vertline_col = c("#d6604d", "#bababa"),
+                   # Table cell padding, width 4 and heights 3
+                   core = list(padding = unit(c(4, 3), "mm")))
 
-p <- forest(dt[,c(1, 19, 21, 20, 22)],
+p <- forest(dt[,c(1, 19, 23, 21, 20, 24, 22)],
             est = list(dt$est_gp1,
                        dt$est_gp2,
                        dt$est_gp3,
@@ -180,10 +194,10 @@ p <- forest(dt[,c(1, 19, 21, 20, 22)],
                          dt$hi_gp2,
                          dt$hi_gp3,
                          dt$hi_gp4),
-            ci_column = c(3, 5),
+            ci_column = c(4, 7),
             ref_line = 1,
             vert_line = c(0.5, 2),
-            nudge_y = 0.2,
+            nudge_y = 0.4,
             theme = tm)
 
 plot(p)

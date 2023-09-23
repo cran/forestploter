@@ -1,3 +1,10 @@
+# forestploter 1.1.1
+
+* Improved `ticks_digits` auto calculation.
+* Remove self righteousness cell height adjustment. 
+* Able to change the fontsize and alignment of the `xlab`.
+* Miss seplled `backgroud` parameter in `add_grob`.
+
 # forestploter 1.1.0
 
 * New function `make_boxplot` to draw boxplot inside the plot.
@@ -17,7 +24,7 @@
 
 * Fixed a bug of legend point estimation color not changing.
 * There's a new function `add_border` to add border to any cell at any side.
-* Digitis rounding now respect `ticks_digits`.
+* Digits rounding now respect `ticks_digits`.
 
 # forestploter 0.2.2
 

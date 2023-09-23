@@ -25,7 +25,7 @@ knitr::opts_chunk$set(
 
 The layout of the forest plot is determined by the dataset provided. All the elements of the forestplot are placed in the cells. This makes it very easy to edit any elements in the plot given the row and columns. The graphical parameters of the element can further be editted in the particular cell. Here, we will start with a simple meta analysis forest plot.   
 
-The plotting steps demenstrated in this vignette may not necessarily be the optimal. There are other R packages out there are better at the plot demenstrated here. Please choose the best one that suits you. Our final plot is shown in the below.
+The plotting steps demonstrate in this vignette may not necessarily be the optimal. There are other R packages out there are better at the plot demonstrate here. Please choose the best one that suits you. Our final plot is shown in the below.
 
 ```{r final-plot, out.width = '95%', echo = FALSE}
 knitr::include_graphics("img/metaplot.png")
@@ -212,7 +212,7 @@ In the next step, we will add a rounded rectangle border with dashed line around
 g <- add_grob(g, 
               row = 1:c(nrow(dt_fig) - 1), 
               col = 9:14,
-              order = "backgroud",
+              order = "background",
               gb_fn = roundrectGrob,
               r = unit(0.05, "snpc"),
               gp = gpar(lty = "dotted",
@@ -227,7 +227,7 @@ for(i in seq_along(symb)){
     g <- add_grob(g, 
                   row = pos[j,1], 
                   col = pos[j,2],
-                  order = "backgroud",
+                  order = "background",
                   gb_fn = circleGrob,
                   r = 0.4,
                   gp = gpar(fill = cols[i]))
@@ -264,7 +264,7 @@ df=6 (P=0.15);I<sup>2</sup> = 36%<br><span style='color:blue'>**Total for overal
 add_grob(g, 
          row = 11, 
          col = 1:6,
-         order = "backgroud",
+         order = "background",
          gb_fn = gridtext::richtext_grob,
          text = txt,
          gp = gpar(fontsize = 8),
