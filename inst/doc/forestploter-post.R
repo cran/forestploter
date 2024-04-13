@@ -1,4 +1,4 @@
-## ---- include = FALSE---------------------------------------------------------
+## ----include = FALSE----------------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   dpi=300,
@@ -12,7 +12,7 @@ knitr::include_graphics("img/metaplot.png")
 library(grid)
 library(forestploter)
 
-# Read meta analysis example data
+# Read meta-analysis example data
 dt <- read.csv(system.file("extdata", "metadata.csv", package = "forestploter"))
 
 str(dt)
@@ -20,7 +20,7 @@ str(dt)
 # Prepare a blank column for the CI
 dt$cicol <- paste(rep(" ", 20), collapse = " ")
 
-# Select some columns for plotting, this will be used as a skeleton of the forestplot
+# Select some columns for plotting, this will be used as a skeleton of the forest plot
 dt_fig <- dt[,c(1:7, 17, 8:13)]
 
 colnames(dt_fig) <- c("Study or Subgroup",
@@ -32,7 +32,7 @@ colnames(dt_fig) <- c("Study or Subgroup",
 dt_fig$Weight <- sprintf("%0.1f%%", dt_fig$Weight)
 dt_fig$Weight[dt_fig$Weight == "NA%"] <- ""
 
-# Convert NA to blank string
+# Convert NA to a blank string
 dt_fig[is.na(dt_fig)] <- ""
 
 # Background to white and summary diamond to black
@@ -59,7 +59,7 @@ p
 
 
 ## ----edit-metaplot, out.width="95%", fig.width  = 10.6, fig.height = 3.6------
-# Change fontface
+# Change font face
 g <- edit_plot(p, row = 9, 
                gp = gpar(fontface = "bold"))
 
@@ -67,7 +67,7 @@ g <- edit_plot(p, row = 9,
 g <- edit_plot(g, col = 8, row = 9, which = "ci", 
           gp = gpar(col = "blue", fill = "blue"))
 
-# Change background of the total row
+# Change the background of the total row
 g <- edit_plot(g, col = 1:7, 
                row = 9, 
                which = "background", 
@@ -83,7 +83,7 @@ g
 
 
 ## ----text-metaplot, out.width="95%", fig.width  = 10.6, fig.height = 3.6------
-# Add or insert some text to header on top of CI columns
+# Add or insert some text to the header on top of CI columns
 g <- add_text(g, text = "IV, Random, 95% CI",
               part = "header", 
               col = 7:8,
@@ -107,7 +107,7 @@ g <- add_text(g, text = "Decaf",
               col = 4:5,
               gp = gpar(fontface = "bold"))
 
-# Add text on the top of risk of bias data
+# Add text on the top of the risk of bias data
 g <- add_text(g, text = "Risk of Bias",
               part = "header", 
               row = 1,
@@ -137,7 +137,7 @@ g <- add_text(g, text = "46",
 g
 
 ## ----border-metaplot, out.width="95%", fig.width  = 10.6, fig.height = 3.6----
-# Add or insert some text to header
+# Add or insert some text to the header
 g <- add_border(g, 
                 part = "header", 
                 row = 1,
@@ -162,7 +162,7 @@ g <- add_grob(g,
               gp = gpar(lty = "dotted",
                         col = "#bdbdbd"))
 
-# Draw circle grob, you can also draw a `pointsGrob`
+# Draw a circle grob, you can also draw a `pointsGrob`
 cols <- c("#eeee00", "#00cc00", "#cc0000")
 symb <- c("?", "+", "-")
 for(i in seq_along(symb)){

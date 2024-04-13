@@ -1,4 +1,4 @@
-## ---- include = FALSE---------------------------------------------------------
+## ----include = FALSE----------------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   dpi=300,
@@ -15,7 +15,7 @@ dt <- read.csv(system.file("extdata", "example_data.csv", package = "forestplote
 # Keep needed columns
 dt <- dt[,1:6]
 
-# indent the subgroup if there is a number in the placebo column
+# Indent the subgroup if there is a number in the placebo column
 dt$Subgroup <- ifelse(is.na(dt$Placebo), 
                       dt$Subgroup,
                       paste0("   ", dt$Subgroup))
@@ -25,12 +25,12 @@ dt$Treatment <- ifelse(is.na(dt$Treatment), "", dt$Treatment)
 dt$Placebo <- ifelse(is.na(dt$Placebo), "", dt$Placebo)
 dt$se <- (log(dt$hi) - log(dt$est))/1.96
 
-# Add blank column for the forest plot to display CI.
-# Adjust the column width with space, increase number of space below 
+# Add a blank column for the forest plot to display CI.
+# Adjust the column width with space, and increase the number of spaces below 
 # to have a larger area to draw the CI. 
 dt$` ` <- paste(rep(" ", 20), collapse = " ")
 
-# Create confidence interval column to display
+# Create a confidence interval column to display
 dt$`HR (95% CI)` <- ifelse(is.na(dt$se), "",
                              sprintf("%.2f (%.2f to %.2f)",
                                      dt$est, dt$low, dt$hi))
@@ -67,11 +67,9 @@ tm <- forest_theme(base_size = 10,
                    ci_alpha = 0.8,
                    ci_lty = 1,
                    ci_lwd = 1.5,
-                   ci_Theight = 0.2, # Set an T end at the end of CI 
+                   ci_Theight = 0.2, # Set a T end at the end of CI 
                    # Reference line width/type/color
-                   refline_lwd = 1,
-                   refline_lty = "dashed",
-                   refline_col = "grey20",
+                   refline_lwd = gpar(lwd = 1, lty = "dashed", col = "grey20"),
                    # Vertical line width/type/color
                    vertline_lwd = 1,
                    vertline_lty = "dashed",
@@ -80,9 +78,7 @@ tm <- forest_theme(base_size = 10,
                    summary_fill = "#4575b4",
                    summary_col = "#4575b4",
                    # Footnote font size/face/color
-                   footnote_cex = 0.6,
-                   footnote_fontface = "italic",
-                   footnote_col = "blue")
+                   footnote_gp = gpar(cex = 0.6, fontface = "italic", col = "blue"))
 
 
 pt <- forest(dt_tmp[,c(1:3, 8:9)],
@@ -141,10 +137,59 @@ p <- forest(dt[,c(1:3, 8:9)],
 plot(p)
 
 
+## ----text-parsing, out.width="80%", fig.width  = 7, fig.height = 2------------
+# Check out the `plotmath` function for math expression.
+dt <- data.frame(
+  Study = c("Study ~1^a", "Study ~2^b", "NO[2]"),
+  low = c(0.2, -0.03, 1.11),
+  est = c(0.71, 0.35, 1.79),
+  hi = c(1.22, 0.74, 2.47)
+)
+
+dt$SMD <- sprintf("%.2f (%.2f, %.2f)", dt$est, dt$low, dt$hi)
+dt$` ` <- paste(rep(" ", 20), collapse = " ")
+
+fig_dt <- dt[,c(1,5:6)]
+
+# Get a matrix of which row and columns to parse
+parse_mat <- matrix(FALSE, 
+                    nrow = nrow(fig_dt),
+                    ncol = ncol(fig_dt))
+
+# Here we want to parse the first column only, you can amend this to whatever you want.
+parse_mat[,1] <- TRUE  
+
+# Remove this fi you don't want parse the column head.
+tm <- forest_theme(colhead=list(fg_params = list(parse=TRUE)), 
+                   core=list(fg_params = list(parse=parse_mat)))
+
+p <- forest(fig_dt,
+       est = dt$est,
+       lower = dt$low,
+       upper = dt$hi,
+       ci_column = 3,
+       theme = tm)
+
+# Add customised footnote.
+# Due to the limitation of the textGrob, passing a parsed text with linebreak 
+# has some issue. We use different approach here.
+txt <- "<sup>a</sup> This is study A<br><sup>b</sup> This is study B"
+
+add_grob(p, 
+         row = 4, 
+         col = 1:2,
+         order = "background",
+         gb_fn = gridtext::richtext_grob,
+         text = txt,
+         gp = gpar(fontsize = 8),
+         hjust = 0, vjust = 1, halign = 0, valign = 1,
+         x = unit(0, "npc"), y = unit(1, "npc"))
+
+
 ## ----multiple-group, out.width="80%", fig.width  = 8, fig.height = 5----------
 dt <- read.csv(system.file("extdata", "example_data.csv", package = "forestploter"))
 dt <- dt[1:7, ]
-# indent the subgroup if there is a number in the placebo column
+# Indent the subgroup if there is a number in the placebo column
 dt$Subgroup <- ifelse(is.na(dt$Placebo), 
                       dt$Subgroup,
                       paste0("   ", dt$Subgroup))
@@ -153,7 +198,7 @@ dt$Subgroup <- ifelse(is.na(dt$Placebo),
 dt$n1 <- ifelse(is.na(dt$Treatment), "", dt$Treatment)
 dt$n2 <- ifelse(is.na(dt$Placebo), "", dt$Placebo)
 
-# Add two blank column for CI
+# Add two blank columns for CI
 dt$`CVD outcome` <- paste(rep(" ", 20), collapse = " ")
 dt$`COPD outcome` <- paste(rep(" ", 20), collapse = " ")
 
@@ -173,7 +218,7 @@ tm <- forest_theme(base_size = 10,
                    refline_lty = "solid",
                    ci_pch = c(15, 18),
                    ci_col = c("#377eb8", "#4daf4a"),
-                   footnote_col = "blue",
+                   footnote_gp = gpar(col = "blue"),
                    legend_name = "Group",
                    legend_value = c("Trt 1", "Trt 2"),
                    vertline_lty = c("dashed", "dotted"),
@@ -252,7 +297,7 @@ dat <- data.frame(Dose = row.names(dat),
 
 dat$Box <- paste(rep(" ", 20), collapse = " ")
 
-# Draw single group box plot
+# Draw a single group box plot
 tm <- forest_theme(ci_Theight = 0.2)
 
 p <- forest(dat[,c(1, 7)],

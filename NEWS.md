@@ -1,3 +1,10 @@
+# forestploter 1.1.2
+
+* Draw reference line and other vertical lines below whiskers.
+* Allow minor ticks and groups for diamond shapes.
+* Able to change legend size.
+* Able to change all graphical parameters of title, legends, x-axis, arrow labs, footnote and reference line.
+
 # forestploter 1.1.1
 
 * Improved `ticks_digits` auto calculation.

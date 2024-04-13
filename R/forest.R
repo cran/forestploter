@@ -36,9 +36,11 @@
 #' @param ticks_digits Number of digits for the x-axis, default is \code{NULL} to calculate
 #' an integer based on \code{ticks_at} if provided or \code{lower} and \code{upper} if not.
 #'  This should be a numerical vector if different rounding will be applied to different
-#'  column. If an integer is specified, for example \code{1L}, trailing zeros after 
+#'  column. If an integer is specified, for example \code{1L}, trailing zeros after
 #' the decimal mark will be dropped. Specify numeric, for example  \code{1}, to keep
 #'  the trailing zero after the decimal mark.
+#' @param ticks_minor A numeric vector of positions to draw ticks without labels (optional).
+#' The values provided here can be superset or disjoint sets of \code{ticks_at}.
 #' @param arrow_lab Labels for the arrows, string vector of length two (left and
 #' right). The theme of arrow will inherit from the x-axis. This should be a list
 #' if different arrow labels for each column is desired.
@@ -74,7 +76,7 @@
 #' @param theme Theme of the forest plot, see \code{\link{forest_theme}} for
 #' details.
 #' @param ... Other arguments passed on to the \code{fn_ci} and \code{fn_summary}.
-#' 
+#'
 #' @importFrom stats na.omit
 #'
 #'
@@ -99,6 +101,7 @@ forest <- function(data,
                    xlim = NULL,
                    ticks_at = NULL,
                    ticks_digits = NULL,
+                   ticks_minor = NULL,
                    arrow_lab = NULL,
                    x_trans = "none",
                    xlab = NULL,
@@ -120,15 +123,15 @@ forest <- function(data,
 
   args_summary <- names(formals(fn_summary))
   if(any(unlist(is_summary))){
-    if(!all(c("est", "lower", "upper", "sizes", "xlim", "gp") %in% args_summary))
-    stop("arguments \"est\", \"lower\", \"upper\", \"sizes\", \"xlim\",and \"gp\" must be provided in the function `fn_summary`.")
+    if(!all(c("est", "lower", "upper", "sizes", "xlim", "gp", "nudge_y") %in% args_summary))
+    stop("arguments \"est\", \"lower\", \"upper\", \"sizes\", \"nudge_y\", \"xlim\",and \"gp\" must be provided in the function `fn_summary`.")
   }
 
   check_errors(data = data, est = est, lower = lower, upper = upper, sizes = sizes,
                ref_line = ref_line, vert_line = vert_line, ci_column = ci_column,
                is_summary = is_summary, xlim = xlim, ticks_at = ticks_at,
                ticks_digits = ticks_digits, arrow_lab = arrow_lab, xlab = xlab,
-               title = title, x_trans = x_trans)
+               title = title, x_trans = x_trans, ticks_minor = ticks_minor)
 
   # Set theme
   if(is.null(theme)){
@@ -148,8 +151,19 @@ forest <- function(data,
   if(!is.null(xlim) && !inherits(xlim, "list"))
     xlim <- rep(list(xlim), length(ci_column))
 
-  if(!is.null(ticks_at) && !inherits(ticks_at, "list"))
-    ticks_at <- rep(list(ticks_at), length(ci_column))
+  if(is.null(ticks_at)){
+      ticks_at <- ticks_minor
+  }else{
+    if(!inherits(ticks_at, "list"))
+      ticks_at <- rep(list(ticks_at), length(ci_column))
+  }
+
+  if(is.null(ticks_minor)){
+    ticks_minor <- ticks_at
+  }else{
+    if(!inherits(ticks_minor, "list"))
+      ticks_minor <- rep(list(ticks_minor), length(ci_column))
+  }
 
   if(!is.null(arrow_lab) && !inherits(arrow_lab, "list"))
     arrow_lab <- rep(list(arrow_lab), length(ci_column))
@@ -225,9 +239,7 @@ forest <- function(data,
   nudge_y <- rep(nudge_y, each = length(ci_column))
 
 
-  if(group_num > 1 || is.null(is_summary)){
-    if(!is.null(is_summary))
-      warning("Summary CI is not supported for multiple groups and will be ignored.")
+  if(is.null(is_summary)){
     is_summary <- rep(FALSE, nrow(data))
   }
 
@@ -259,7 +271,7 @@ forest <- function(data,
       })
     else
       ticks_digits <- max(count_decimal(ticks_digits))
-    
+
     ticks_digits <- as.integer(ticks_digits)
   }
 
@@ -270,13 +282,20 @@ forest <- function(data,
               lower = lower[sel_num],
               upper = upper[sel_num],
               ref_line = ref_line[i],
-              ticks_at = ticks_at[[i]],
+              ticks_at = c(ticks_at[[i]], ticks_minor[[i]]),
               x_trans = x_trans[i])
   })
 
   # Set X-axis breaks if missing
   ticks_at <- lapply(seq_along(xlim), function(i){
     make_ticks(at = ticks_at[[i]],
+               xlim = xlim[[i]],
+               refline = ref_line[i],
+               x_trans = x_trans[i])
+  })
+
+  ticks_minor <- lapply(seq_along(xlim), function(i){
+    make_ticks(at = ticks_minor[[i]],
                xlim = xlim[[i]],
                refline = ref_line[i],
                x_trans = x_trans[i])
@@ -298,6 +317,11 @@ forest <- function(data,
     ticks_digits <- rep(ticks_digits, length(ci_column))
 
   gt <- tableGrob(data, theme = theme$tab_theme, rows = NULL)
+
+  if(group_num > 1 & any(is_summary)){
+    gt$heights[c(FALSE, is_summary)] <- gt$heights[c(FALSE, is_summary)]*2
+  }
+
 
   # Do not clip text
   gt$layout$clip <- "off"
@@ -347,7 +371,8 @@ forest <- function(data,
 
       if(is_summary[i]){
         # Update graphical parameters
-        g_par <- theme$summary
+        g_par <- gpar(col = theme$summary$col[current_gp],
+                      fill = theme$summary$fill[current_gp])
         if ("gp" %in% names(dot_pass)) {
           g_par <- modifyList(list(dot_pass$gp), g_par)
           dot_pass$gp <- NULL
@@ -361,7 +386,8 @@ forest <- function(data,
                upper = upper[[col_num]][i],
                sizes = sizes[[col_num]][i],
                xlim = xlim[[col_indx[col_num]]],
-               gp = g_par),
+               gp = g_par,
+               nudge_y = nudge_y[col_num]),
           dot_pass
         ))
 
@@ -417,6 +443,7 @@ forest <- function(data,
   # Prepare X axis
   x_axis <- lapply(seq_along(xlim), function(i){
     make_xaxis(at = ticks_at[[i]],
+               at_minor = ticks_minor[[i]],
                gp = theme$xaxis,
                xlab_gp = theme$xlab,
                ticks_digits = ticks_digits[[i]],
@@ -455,8 +482,10 @@ forest <- function(data,
 
   # Add footnote
   if(!is.null(footnote)){
+    if(theme$footnote$parse)
+      footnote <- tryCatch(parse(text = footnote), error = function(e) footnote)
     footnote_grob <- textGrob(label = footnote,
-                              gp = theme$footnote,
+                              gp = theme$footnote$gp,
                               x = 0,
                               y = .8,
                               just = "left",
@@ -483,6 +512,8 @@ forest <- function(data,
                           t = 2,
                           l = j,
                           b = tot_row, r = j,
+                          # Make sure reference line is below the whisker
+                          z = max(gt$layout$z[grepl("core-", gt$layout$name)]),
                           clip = "off",
                           name = paste0("ref.line-", j))
 
@@ -504,6 +535,7 @@ forest <- function(data,
                             t = 2,
                             l = j,
                             b = tot_row, r = j,
+                            z = max(gt$layout$z[grepl("core-", gt$layout$name)]),
                             clip = "off",
                             name = paste0("vert.line-", j))
 

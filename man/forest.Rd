@@ -17,6 +17,7 @@ forest(
   xlim = NULL,
   ticks_at = NULL,
   ticks_digits = NULL,
+  ticks_minor = NULL,
   arrow_lab = NULL,
   x_trans = "none",
   xlab = NULL,
@@ -78,6 +79,9 @@ column. If an integer is specified, for example \code{1L}, trailing zeros after
 the decimal mark will be dropped. Specify numeric, for example  \code{1}, to keep
 the trailing zero after the decimal mark.}
 
+\item{ticks_minor}{A numeric vector of positions to draw ticks without labels (optional).
+The values provided here can be superset or disjoint sets of \code{ticks_at}.}
+
 \item{arrow_lab}{Labels for the arrows, string vector of length two (left and
 right). The theme of arrow will inherit from the x-axis. This should be a list
 if different arrow labels for each column is desired.}
@@ -132,6 +136,7 @@ A data frame will be used for the basic layout of the forest plot.
 Graphical parameters can be set using the \code{\link{forest_theme}} function.
 }
 \examples{
+library(grid)
 # Read provided sample example data
 dt <- read.csv(system.file("extdata", "example_data.csv", package = "forestploter"))
 
@@ -159,9 +164,8 @@ dt$`HR (95\% CI)` <- ifelse(is.na(dt$se), "",
 
 # Define theme
 tm <- forest_theme(base_size = 10,
-                   refline_col = "red",
-                   footnote_col = "#636363",
-                   footnote_fontface = "italic")
+                   refline_gp = gpar(col = "red"),
+                   footnote_gp = gpar(col = "#636363", fontface = "italic"))
 
 p <- forest(dt[,c(1:3, 8:9)],
             est = dt$est,
