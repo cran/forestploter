@@ -1,14 +1,14 @@
 ## ----include = FALSE----------------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
-  dpi=300,
+  dpi = 300,
   comment = "#>"
 )
 
 ## ----final-plot, out.width = '95%', echo = FALSE------------------------------
 knitr::include_graphics("img/metaplot.png")
 
-## ----meta-forest, out.width="95%", fig.width  = 10.6, fig.height = 3.6--------
+## ----meta-forest, out.width="95%", fig.width = 10.6, fig.height = 3.6---------
 library(grid)
 library(forestploter)
 
@@ -20,11 +20,11 @@ str(dt)
 # Prepare a blank column for the CI
 dt$cicol <- paste(rep(" ", 20), collapse = " ")
 
-# Select some columns for plotting, this will be used as a skeleton of the forest plot
-dt_fig <- dt[,c(1:7, 17, 8:13)]
+# Select some columns for plotting; this will serve as the skeleton of the forest plot
+dt_fig <- dt[, c(1:7, 17, 8:13)]
 
 colnames(dt_fig) <- c("Study or Subgroup",
-                      "Events","Total","Events","Total",
+                      "Events", "Total", "Events", "Total",
                       "Weight",
                       "", "",
                       LETTERS[1:6])
@@ -35,8 +35,8 @@ dt_fig$Weight[dt_fig$Weight == "NA%"] <- ""
 # Convert NA to a blank string
 dt_fig[is.na(dt_fig)] <- ""
 
-# Background to white and summary diamond to black
-tm <- forest_theme(core = list(bg_params=list(fill = c("white"))),
+# Set background to white and summary diamond to black
+tm <- forest_theme(core = list(bg_params = list(fill = c("white"))),
                    summary_col = "black",
                    arrow_label_just = "end",
                    arrow_type = "closed")
@@ -45,27 +45,25 @@ p <- forest(dt_fig,
             est = dt$est,
             lower = dt$lb, 
             upper = dt$ub,
-            sizes = sqrt(dt$weights/100),
-            is_summary = c(rep(F, nrow(dt)-1), T),
+            sizes = sqrt(dt$weights / 100),
+            is_summary = c(rep(FALSE, nrow(dt) - 1), TRUE),
             ci_column = 8,
             ref_line = 1,
             x_trans = "log",
-            arrow_lab = c("Favours caffeine","Favours decaf"),
+            arrow_lab = c("Favours caffeine", "Favours decaf"),
             xlim = c(0.05, 100),
             ticks_at = c(0.1, 1, 10, 100),
             theme = tm)
 p
 
-
-
-## ----edit-metaplot, out.width="95%", fig.width  = 10.6, fig.height = 3.6------
+## ----edit-metaplot, out.width="95%", fig.width = 10.6, fig.height = 3.6-------
 # Change font face
 g <- edit_plot(p, row = 9, 
                gp = gpar(fontface = "bold"))
 
 # Change color
 g <- edit_plot(g, col = 8, row = 9, which = "ci", 
-          gp = gpar(col = "blue", fill = "blue"))
+               gp = gpar(col = "blue", fill = "blue"))
 
 # Change the background of the total row
 g <- edit_plot(g, col = 1:7, 
@@ -73,16 +71,14 @@ g <- edit_plot(g, col = 1:7,
                which = "background", 
                gp = gpar(fill = "#f6eff7"))
 
-# Align texts to center
+# Align text to center
 g <- edit_plot(g, col = 9:14, 
                which = "text",
-               # gp = gpar(),
                hjust = unit(0.5, "npc"),
                x = unit(0.5, "npc"))
 g
 
-
-## ----text-metaplot, out.width="95%", fig.width  = 10.6, fig.height = 3.6------
+## ----text-metaplot, out.width="95%", fig.width = 10.6, fig.height = 3.6-------
 # Add or insert some text to the header on top of CI columns
 g <- add_text(g, text = "IV, Random, 95% CI",
               part = "header", 
@@ -136,7 +132,7 @@ g <- add_text(g, text = "46",
 
 g
 
-## ----border-metaplot, out.width="95%", fig.width  = 10.6, fig.height = 3.6----
+## ----border-metaplot, out.width="95%", fig.width = 10.6, fig.height = 3.6-----
 # Add or insert some text to the header
 g <- add_border(g, 
                 part = "header", 
@@ -151,8 +147,7 @@ g <- add_border(g,
 
 g
 
-
-## ----grob-metaplot, out.width="95%", fig.width  = 10.6, fig.height = 3.6------
+## ----grob-metaplot, out.width="95%", fig.width = 10.6, fig.height = 3.6-------
 g <- add_grob(g, 
               row = 1:c(nrow(dt_fig) - 1), 
               col = 9:14,
@@ -162,15 +157,15 @@ g <- add_grob(g,
               gp = gpar(lty = "dotted",
                         col = "#bdbdbd"))
 
-# Draw a circle grob, you can also draw a `pointsGrob`
+# Draw a circle grob; you can also draw a `pointsGrob`
 cols <- c("#eeee00", "#00cc00", "#cc0000")
 symb <- c("?", "+", "-")
 for(i in seq_along(symb)){
-  pos <- which(dt_fig == symb[i], arr.ind=TRUE)
+  pos <- which(dt_fig == symb[i], arr.ind = TRUE)
   for(j in 1:nrow(pos)){
     g <- add_grob(g, 
-                  row = pos[j,1], 
-                  col = pos[j,2],
+                  row = pos[j, 1], 
+                  col = pos[j, 2],
                   order = "background",
                   gb_fn = circleGrob,
                   r = 0.4,
@@ -180,12 +175,11 @@ for(i in seq_along(symb)){
 
 g
 
-
-## ----txtgrob-metaplot, out.width="95%", fig.width  = 10.6, fig.height = 3.6----
+## ----txtgrob-metaplot, out.width="95%", fig.width = 10.6, fig.height = 3.6----
 txt <- bquote(atop(paste("Heterogeneity: ", tau^2, " = 0.22; ",
-                         chi^2, " = 9.39, df = 6 (P = 0.15)",
+                         chi^2, " = 9.39, df = 6 (P = 0.15) ",
                          I^2, " = 36%"),
-            "Total for overall effect: Z = 1.15(P=0.25)"))
+            "Total for overall effect: Z = 1.15 (P = 0.25)"))
 
 add_text(g, text = txt,
          col = 1:6,
@@ -194,9 +188,9 @@ add_text(g, text = txt,
          parse = TRUE,
          gp = gpar(fontsize = 8))
 
-## ----gridtext-metaplot, out.width="95%", fig.width  = 10.6, fig.height = 3.6----
+## ----gridtext-metaplot, out.width="95%", fig.width = 10.6, fig.height = 3.6----
 txt <- "Heterogeneity: &tau;<sup>2</sup> = 0.22; &chi;<sup>2</sup> = 9.39,
-df=6 (P=0.15);I<sup>2</sup> = 36%<br><span style='color:blue'>**Total for overall effect:**</span> Z = 1.15(P=0.25)"
+df = 6 (P = 0.15); I<sup>2</sup> = 36%<br><span style='color:blue'>**Total for overall effect:**</span> Z = 1.15 (P = 0.25)"
 
 add_grob(g, 
          row = 11, 
@@ -207,5 +201,4 @@ add_grob(g,
          gp = gpar(fontsize = 8),
          hjust = 0, vjust = 1, halign = 0, valign = 1,
          x = unit(0, "npc"), y = unit(1, "npc"))
-
 

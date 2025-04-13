@@ -263,7 +263,7 @@ forest <- function(data,
     }
   }
 
-  # ticks digits auto calculation if missing
+  # automatic calculation of tick digits if missing
   if(is.null(ticks_digits) & !is.null(ticks_at)){
     if(is.list(ticks_at))
       ticks_digits <- sapply(ticks_at, function(x){
@@ -508,7 +508,8 @@ forest <- function(data,
                           vert_line(x = ref_line[idx],
                                     gp = theme$refline,
                                     xlim = xlim[[idx]],
-                                    x_trans = x_trans[idx]),
+                                    x_trans = x_trans[idx],
+                                    nrow = nrow(data)),
                           t = 2,
                           l = j,
                           b = tot_row, r = j,
@@ -531,7 +532,8 @@ forest <- function(data,
                             vert_line(x = vert_line[[idx]],
                                       gp = theme$vertline,
                                       xlim = xlim[[idx]],
-                                      x_trans = x_trans[idx]),
+                                      x_trans = x_trans[idx],
+                                      nrow = nrow(data)),
                             t = 2,
                             l = j,
                             b = tot_row, r = j,
