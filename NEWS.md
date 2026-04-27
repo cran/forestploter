@@ -1,3 +1,11 @@
+# forestploter 1.1.4
+
+* Deprecated some parameters in `forest_theme`.
+* Remove gap between cells.
+* Better ticks break.
+* Code base improvement.
+* Fix typos.
+
 # forestploter 1.1.3
 
 * Extend vertical line to the top and the bottom.

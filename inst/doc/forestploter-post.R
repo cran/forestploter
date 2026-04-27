@@ -66,10 +66,11 @@ g <- edit_plot(g, col = 8, row = 9, which = "ci",
                gp = gpar(col = "blue", fill = "blue"))
 
 # Change the background of the total row
+# You need to change both fill and col if you don't want to see a gap between cells
 g <- edit_plot(g, col = 1:7, 
                row = 9, 
                which = "background", 
-               gp = gpar(fill = "#f6eff7"))
+               gp = gpar(fill = "#f6eff7", col = "#f6eff7"))
 
 # Align text to center
 g <- edit_plot(g, col = 9:14, 
@@ -148,8 +149,8 @@ g <- add_border(g,
 g
 
 ## ----grob-metaplot, out.width="95%", fig.width = 10.6, fig.height = 3.6-------
-g <- add_grob(g, 
-              row = 1:c(nrow(dt_fig) - 1), 
+g <- add_grob(g,
+              row = 1:(nrow(dt_fig) - 1),
               col = 9:14,
               order = "background",
               gb_fn = roundrectGrob,
@@ -179,7 +180,7 @@ g
 txt <- bquote(atop(paste("Heterogeneity: ", tau^2, " = 0.22; ",
                          chi^2, " = 9.39, df = 6 (P = 0.15) ",
                          I^2, " = 36%"),
-            "Total for overall effect: Z = 1.15 (P = 0.25)"))
+            "Test for overall effect: Z = 1.15 (P = 0.25)"))
 
 add_text(g, text = txt,
          col = 1:6,
@@ -190,7 +191,7 @@ add_text(g, text = txt,
 
 ## ----gridtext-metaplot, out.width="95%", fig.width = 10.6, fig.height = 3.6----
 txt <- "Heterogeneity: &tau;<sup>2</sup> = 0.22; &chi;<sup>2</sup> = 9.39,
-df = 6 (P = 0.15); I<sup>2</sup> = 36%<br><span style='color:blue'>**Total for overall effect:**</span> Z = 1.15 (P = 0.25)"
+df = 6 (P = 0.15); I<sup>2</sup> = 36%<br><span style='color:blue'>**Test for overall effect:**</span> Z = 1.15 (P = 0.25)"
 
 add_grob(g, 
          row = 11, 

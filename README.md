@@ -14,13 +14,15 @@ download](https://cranlogs.r-pkg.org/badges/grand-total/forestploter)](https://c
 coverage](https://codecov.io/gh/adayim/forestploter/branch/main/graph/badge.svg)](https://app.codecov.io/gh/adayim/forestploter?branch=main)
 <!-- badges: end -->
 
-The goal of `forestploter` is to create a publication-ready forest plot
-with little effort. This package provides some extra displays compared
-to other packages. The dataset will be used as a basic layout for the
-forest plot. The width of the column to draw the confidence interval can
-be controlled with the string length of the column. Can use space to
-control this. The elements in the plot are put in the rows and columns,
-think of the plot as a table.
+The goal of `forestploter` is to create publication-ready forest plots
+with minimal effort. This package offers more flexibility and
+customization options compared to other packages. The layout of the
+forest plot is determined by the provided dataset, and its elements are
+organized in a grid-like structure of rows and columns, much like a
+table. This design allows for easy manipulation of any plot component.
+For instance, the width of the confidence interval column can be
+controlled by adjusting the number of spaces in a blank character
+column.
 
 ## Installation
 
@@ -40,10 +42,11 @@ install.packages("forestploter")
 devtools::install_github("adayim/forestploter")
 ```
 
-## Basic usage
+## Basic Usage
 
-The column names of the provided data will be used as the header. This
-is a basic example which shows you how to create a `forestplot`:
+The column names of the provided data will be used as the header of the
+plot. This is a basic example that demonstrates how to create a
+`forestplot`:
 
 ``` r
 library(grid)
@@ -75,6 +78,7 @@ tm <- forest_theme(base_size = 10,
                    refline_col = "red",
                    arrow_type = "closed",
                    footnote_gp = gpar(col = "blue", cex = 0.6))
+#> refline_col will be deprecated, use refline_gp instead.
 
 p <- forest(dt[,c(1:3, 20:21)],
             est = dt$est,
@@ -93,15 +97,14 @@ p <- forest(dt[,c(1:3, 20:21)],
 plot(p)
 ```
 
-<img src="man/figures/README-example-1.png" width="100%" height="40%" />
+<img src="man/figures/README-example-1.png" alt="" width="100%" height="40%" />
 
-## Editing plot
+## Editing the Plot
 
-Sometimes one may want to change the color or font face of some columns.
-Or one may want to insert text into certain rows. Or may want an
-underline to separate by group. The function `edit_plot`, `add_text`,
-`insert_text`, and `add_border` can achieve these. Below is how to do
-this:
+You may want to change the color or font of certain columns, insert text
+into specific rows, or add an underline to separate groups. The
+`edit_plot`, `add_text`, `insert_text`, and `add_border` functions are
+designed for these purposes. Here is how you can use them:
 
 ``` r
 # Edit text in row 3
@@ -139,28 +142,25 @@ g <- add_border(g, row = 10, col = 1:3, where = "top")
 plot(g)
 ```
 
-<img src="man/figures/README-edit-1.png" width="100%" height="40%" />
+<img src="man/figures/README-edit-1.png" alt="" width="100%" height="40%" />
 
 Remember to add 1 to the row number if you have inserted any text
-before. The row number will be changed after inserting a text.
+before, as the row number will change after inserting text.
 
-## Complex usage
+## Complex Usage
 
-If you want to draw CI to multiple columns, only need to provide a
-vector of the position of the columns to be drawn in the data. As seen
-in the example below, the CI will be drawn in columns 3 and 5. The first
-and second `est`, `lower`, and `upper` will be drawn in columns 3 and
-column 5.
+If you want to draw CIs in multiple columns, you only need to provide a
+vector of the column positions in the data. As shown in the example
+below, the CIs will be drawn in columns 3 and 5, with the first and
+second `est`, `lower`, and `upper` values corresponding to those
+columns.
 
-For a more complex example, you may want to draw CI by groups. The
-solution is simple, just provide another set of `est`, `lower`, and
-`upper`. If the number of provided `est`, `lower`, and `upper` are
-larger than the column number to draw CI, then the `est`, `lower`, and
-`upper` will be reused. As it is shown in the example below, `est_gp1`
-and `est_gp2` will be drawn in column 3 and column 5 as normal. But
-`est_gp3` and `est_gp4` haven’t been used, those will be drawn to column
-3 and column 5 again. So, the `est_gp1` and `est_gp2` will be considered
-as group 1, `est_gp3` and `est_gp4` group 2.
+For more complex scenarios, such as drawing CIs by groups, you can
+provide an additional set of `est`, `lower`, and `upper` values. If the
+number of `est`, `lower`, and `upper` sets is greater than the number of
+CI columns, the values will be reused. In the example below, `est_gp1`
+and `est_gp2` are drawn in columns 3 and 5 as **group 1**, while
+`est_gp3` and `est_gp4` are drawn in the same columns as **group 2**.
 
 This is an example of multiple CI columns and groups:
 
@@ -175,6 +175,7 @@ tm <- forest_theme(base_size = 10,
                    footnote_gp = gpar(col = "blue"),
                    legend_name = "GP",
                    legend_value = c("Trt 1", "Trt 2"))
+#> refline_col will be deprecated, use refline_gp instead.
 
 p <- forest(dt[,c(1:2, 20, 3, 22)],
             est = list(dt$est_gp1,
@@ -199,4 +200,4 @@ p <- forest(dt[,c(1:2, 20, 3, 22)],
 plot(p)
 ```
 
-<img src="man/figures/README-multiple-1.png" width="100%" height="80%" />
+<img src="man/figures/README-multiple-1.png" alt="" width="100%" height="80%" />
