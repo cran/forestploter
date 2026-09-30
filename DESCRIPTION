@@ -1,25 +1,29 @@
 Package: forestploter
 Title: Create a Flexible Forest Plot
-Version: 1.1.4
+Version: 1.2.0
 Authors@R: person(given="Alimu", 
                  family = "Dayimu",
                  email = "ad938@cam.ac.uk",
                  role = c("aut", "cre"),
                  comment = c(ORCID = "0000-0001-9998-7463"))
-Description: Create a forest plot based on the layout of the data. Confidence intervals in multiple columns by groups can be done easily. Editing the plot, inserting/adding text, applying a theme to the plot, and much more.
+Description: Create a forest plot based on the layout of the data. Confidence intervals in multiple columns by groups can be done easily. The plot is built step by step with the pipe, adding the axis, the labels and a style, editing the plot, inserting/adding text, and much more.
 License: MIT + file LICENSE
-URL: https://github.com/adayim/forestploter
+Depends: R (>= 4.1.0)
+URL: https://github.com/adayim/forestploter,
+        https://adayim.github.io/forestploter/
 BugReports: https://github.com/adayim/forestploter/issues
 Encoding: UTF-8
-RoxygenNote: 7.3.3
 Imports: grid, gridExtra, gtable
-Suggests: gridtext, rmarkdown, knitr, vdiffr, testthat (>= 3.0.0), covr
+Suggests: gridmicrotex, rmarkdown, knitr, vdiffr, testthat (>= 3.0.0),
+        covr
 VignetteBuilder: knitr
 Config/testthat/edition: 3
+Config/roxygen2/version: 8.0.0
+RoxygenNote: 7.3.3
 NeedsCompilation: no
-Packaged: 2026-04-26 21:47:58 UTC; alim
+Packaged: 2026-09-30 11:36:10 UTC; alim
 Author: Alimu Dayimu [aut, cre] (ORCID:
     <https://orcid.org/0000-0001-9998-7463>)
 Maintainer: Alimu Dayimu <ad938@cam.ac.uk>
 Repository: CRAN
-Date/Publication: 2026-04-27 05:10:16 UTC
+Date/Publication: 2026-09-30 17:10:07 UTC

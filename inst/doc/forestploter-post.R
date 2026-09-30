@@ -35,48 +35,48 @@ dt_fig$Weight[dt_fig$Weight == "NA%"] <- ""
 # Convert NA to a blank string
 dt_fig[is.na(dt_fig)] <- ""
 
-# Set background to white and summary diamond to black
-tm <- forest_theme(core = list(bg_params = list(fill = c("white"))),
-                   summary_col = "black",
-                   arrow_label_just = "end",
-                   arrow_type = "closed")
+# Set background to white, summary diamond to black and closed arrows
+st <- forest_style(body = gpar(fill = "white"),
+                   summary = gpar(col = "black"),
+                   arrow_type = "closed",
+                   arrow_label_just = "end")
 
 p <- forest(dt_fig,
             est = dt$est,
-            lower = dt$lb, 
+            lower = dt$lb,
             upper = dt$ub,
-            sizes = sqrt(dt$weights / 100),
+            sizes = dt$weights,
             is_summary = c(rep(FALSE, nrow(dt) - 1), TRUE),
             ci_column = 8,
             ref_line = 1,
-            x_trans = "log",
-            arrow_lab = c("Favours caffeine", "Favours decaf"),
+            style = st) |>
+  set_xaxis(x_trans = "log",
             xlim = c(0.05, 100),
-            ticks_at = c(0.1, 1, 10, 100),
-            theme = tm)
+            ticks_at = c(0.1, 1, 10, 100)) |>
+  set_labs(arrow = c("Favours caffeine", "Favours decaf")) |>
+  # Read the sizes as study weights
+  scale_sizes(method = "range")
 p
 
 ## ----edit-metaplot, out.width="95%", fig.width = 10.6, fig.height = 3.6-------
-# Change font face
-g <- edit_plot(p, row = 9, 
-               gp = gpar(fontface = "bold"))
-
-# Change color
-g <- edit_plot(g, col = 8, row = 9, which = "ci", 
-               gp = gpar(col = "blue", fill = "blue"))
-
-# Change the background of the total row
-# You need to change both fill and col if you don't want to see a gap between cells
-g <- edit_plot(g, col = 1:7, 
-               row = 9, 
-               which = "background", 
-               gp = gpar(fill = "#f6eff7", col = "#f6eff7"))
-
-# Align text to center
-g <- edit_plot(g, col = 9:14, 
-               which = "text",
-               hjust = unit(0.5, "npc"),
-               x = unit(0.5, "npc"))
+g <- p |>
+  # Change font face
+  edit_plot(row = 9,
+            gp = gpar(fontface = "bold")) |>
+  # Change color
+  edit_plot(col = 8, row = 9, which = "ci",
+            gp = gpar(col = "blue", fill = "blue")) |>
+  # Change the background of the total row
+  # You need to change both fill and col if you don't want to see a gap between cells
+  edit_plot(col = 1:7,
+            row = 9,
+            which = "background",
+            gp = gpar(fill = "#f6eff7", col = "#f6eff7")) |>
+  # Align text to center
+  edit_plot(col = 9:14,
+            which = "text",
+            hjust = unit(0.5, "npc"),
+            x = unit(0.5, "npc"))
 g
 
 ## ----text-metaplot, out.width="95%", fig.width = 10.6, fig.height = 3.6-------
@@ -189,17 +189,17 @@ add_text(g, text = txt,
          parse = TRUE,
          gp = gpar(fontsize = 8))
 
-## ----gridtext-metaplot, out.width="95%", fig.width = 10.6, fig.height = 3.6----
-txt <- "Heterogeneity: &tau;<sup>2</sup> = 0.22; &chi;<sup>2</sup> = 9.39,
-df = 6 (P = 0.15); I<sup>2</sup> = 36%<br><span style='color:blue'>**Test for overall effect:**</span> Z = 1.15 (P = 0.25)"
+## ----gridmicrotex-metaplot, out.width="95%", fig.width = 10.6, fig.height = 3.6, fig.keep = "last"----
+txt <- r"(Heterogeneity: $\tau^2 = 0.22$; $\chi^2 = 9.39$, df = 6 (P = 0.15); $I^2 = 36\%$
+\textcolor{blue}{\textbf{Test for overall effect:}} Z = 1.15 (P = 0.25))"
 
-add_grob(g, 
-         row = 11, 
+add_grob(g,
+         row = 11,
          col = 1:6,
          order = "background",
-         gb_fn = gridtext::richtext_grob,
-         text = txt,
+         gb_fn = gridmicrotex::latex_grob,
+         tex = txt,
          gp = gpar(fontsize = 8),
-         hjust = 0, vjust = 1, halign = 0, valign = 1,
+         hjust = 0, vjust = 1,
          x = unit(0, "npc"), y = unit(1, "npc"))
 

@@ -39,15 +39,14 @@ head(dt)
 ## ----simple-plot, out.width="80%", fig.width = 8, fig.height = 6--------------
 p <- forest(dt[, c(1:3, 8:9)],
             est = dt$est,
-            lower = dt$low, 
+            lower = dt$low,
             upper = dt$hi,
             sizes = dt$se,
             ci_column = 4,
-            ref_line = 1,
-            arrow_lab = c("Placebo Better", "Treatment Better"),
-            xlim = c(0, 4),
-            ticks_at = c(0.5, 1, 2, 3),
-            footnote = "This is the demo data. Please feel free to change\nanything you want.")
+            ref_line = 1) |>
+  set_xaxis(xlim = c(0, 4), ticks_at = c(0.5, 1, 2, 3)) |>
+  set_labs(arrow = c("Placebo Better", "Treatment Better"),
+           footnote = "This is the demo data. Please feel free to change\nanything you want.")
 
 # Print plot
 plot(p)
@@ -57,41 +56,34 @@ dt_tmp <- rbind(dt[-1, ], dt[1, ])
 dt_tmp[nrow(dt_tmp), 1] <- "Overall"
 dt_tmp <- dt_tmp[1:11, ]
 
-# Define theme
-tm <- forest_theme(base_size = 10,
+# Define a style
+st <- forest_style(base_size = 10,
                    # Confidence interval point shape, line type/color/width
                    ci_pch = 15,
-                   ci_col = "#762a83",
-                   ci_fill = "black",
-                   ci_alpha = 0.8,
-                   ci_lty = 1,
-                   ci_lwd = 1.5,
-                   ci_Theight = 0.2, # Set a T end at the end of CI 
+                   ci = gpar(col = "#762a83", fill = "black", alpha = 0.8,
+                             lty = 1, lwd = 1.5),
+                   ci_t_height = 0.2, # Set a T end at the end of CI
                    # Reference line width/type/color
-                   refline_gp = gpar(lwd = 1, lty = "dashed", col = "grey20"),
+                   ref_line = gpar(lwd = 1, lty = "dashed", col = "grey20"),
                    # Vertical line width/type/color
-                   vertline_lwd = 1,
-                   vertline_lty = "dashed",
-                   vertline_col = "grey20",
+                   vline = gpar(lwd = 1, lty = "dashed", col = "grey20"),
                    # Change summary color for filling and borders
-                   summary_fill = "#4575b4",
-                   summary_col = "#4575b4",
+                   summary = gpar(fill = "#4575b4", col = "#4575b4"),
                    # Footnote font size/face/color
-                   footnote_gp = gpar(cex = 0.6, fontface = "italic", col = "blue"))
+                   footnote = gpar(cex = 0.6, fontface = "italic", col = "blue"))
 
 pt <- forest(dt_tmp[, c(1:3, 8:9)],
              est = dt_tmp$est,
-             lower = dt_tmp$low, 
+             lower = dt_tmp$low,
              upper = dt_tmp$hi,
              sizes = dt_tmp$se,
              is_summary = c(rep(FALSE, nrow(dt_tmp) - 1), TRUE),
              ci_column = 4,
              ref_line = 1,
-             arrow_lab = c("Placebo Better", "Treatment Better"),
-             xlim = c(0, 4),
-             ticks_at = c(0.5, 1, 2, 3),
-             footnote = "This is the demo data. Please feel free to change\nanything you want.",
-             theme = tm)
+             style = st) |>
+  set_xaxis(xlim = c(0, 4), ticks_at = c(0.5, 1, 2, 3)) |>
+  set_labs(arrow = c("Placebo Better", "Treatment Better"),
+           footnote = "This is the demo data. Please feel free to change\nanything you want.")
 
 # Print plot
 plot(pt)
@@ -100,40 +92,40 @@ plot(pt)
 dt <- dt[1:4, ]
 
 # Header center and content right
-tm <- forest_theme(core = list(fg_params = list(hjust = 1, x = 0.9),
-                               bg_params = list(fill = c("#edf8e9", "#c7e9c0", "#a1d99b"))),
+st <- forest_style(body = gpar(fill = c("#edf8e9", "#c7e9c0", "#a1d99b")),
+                   core = list(fg_params = list(hjust = 1, x = 0.9)),
                    colhead = list(fg_params = list(hjust = 0.5, x = 0.5)))
 
 p <- forest(dt[, c(1:3, 8:9)],
             est = dt$est,
-            lower = dt$low, 
+            lower = dt$low,
             upper = dt$hi,
             sizes = dt$se,
             ci_column = 4,
-            title = "Header center content right",
-            theme = tm)
+            style = st) |>
+  set_labs(title = "Header center content right")
 
 # Print plot
 plot(p)
 
 # Mixed justification
-tm <- forest_theme(core = list(fg_params = list(hjust = c(1, 0, 0, 0.5),
-                                                x = c(0.9, 0.1, 0, 0.5)),
-                               bg_params = list(fill = c("#f6eff7", "#d0d1e6", "#a6bddb", "#67a9cf"))),
+st <- forest_style(body = gpar(fill = c("#f6eff7", "#d0d1e6", "#a6bddb", "#67a9cf")),
+                   core = list(fg_params = list(hjust = c(1, 0, 0, 0.5),
+                                                x = c(0.9, 0.1, 0, 0.5))),
                    colhead = list(fg_params = list(hjust = c(1, 0, 0, 0, 0.5),
                                                    x = c(0.9, 0.1, 0, 0, 0.5))))
 
 p <- forest(dt[, c(1:3, 8:9)],
             est = dt$est,
-            lower = dt$low, 
+            lower = dt$low,
             upper = dt$hi,
             sizes = dt$se,
             ci_column = 4,
-            title = "Mixed justification",
-            theme = tm)
+            style = st) |>
+  set_labs(title = "Mixed justification")
 plot(p)
 
-## ----text-parsing, out.width="80%", fig.width = 7, fig.height = 2-------------
+## ----text-parsing, out.width="80%", fig.width = 7, fig.height = 2, fig.keep = "last"----
 # Check out the `plotmath` function for math expression.
 dt <- data.frame(
   Study = c("Study ~1^a", "Study ~2^b", "NO[2]"),
@@ -156,7 +148,7 @@ parse_mat <- matrix(FALSE,
 parse_mat[, 1] <- TRUE  
 
 # Remove this if you don't want to parse the column head.
-tm <- forest_theme(colhead = list(fg_params = list(parse = TRUE)), 
+st <- forest_style(colhead = list(fg_params = list(parse = TRUE)),
                    core = list(fg_params = list(parse = parse_mat)))
 
 p <- forest(fig_dt,
@@ -164,21 +156,21 @@ p <- forest(fig_dt,
             lower = dt$low,
             upper = dt$hi,
             ci_column = 3,
-            theme = tm)
+            style = st)
 
 # Add customized footnote.
-# Due to the limitation of the textGrob, passing a parsed text with linebreak 
+# Due to the limitation of the textGrob, passing a parsed text with linebreak
 # has some issues. We use a different approach here.
-txt <- "<sup>a</sup> This is study A<br><sup>b</sup> This is study B"
+txt <- r"(${}^{a}$ This is study A<br>${}^{b}$ This is study B)"
 
-add_grob(p, 
-         row = 4, 
+add_grob(p,
+         row = 4,
          col = 1:2,
          order = "background",
-         gb_fn = gridtext::richtext_grob,
-         text = txt,
+         gb_fn = gridmicrotex::markdown_grob,
+         md = txt,
          gp = gpar(fontsize = 8),
-         hjust = 0, vjust = 1, halign = 0, valign = 1,
+         hjust = 0, vjust = 1,
          x = unit(0, "npc"), y = unit(1, "npc"))
 
 ## ----multiple-group, out.width="80%", fig.width = 8, fig.height = 5-----------
@@ -208,16 +200,14 @@ dt$ci2 <- paste(sprintf("%.1f (%.1f, %.1f)", dt$est_gp2, dt$low_gp2, dt$hi_gp2),
                 sep = "\n")
 dt$ci2[grepl("NA", dt$ci2)] <- ""
 
-# Set-up theme
-tm <- forest_theme(base_size = 10,
-                   refline_gp = gpar(lty = "solid"),
+# Set-up the style
+st <- forest_style(base_size = 10,
+                   ref_line = gpar(lty = "solid"),
                    ci_pch = c(15, 18),
-                   ci_col = c("#377eb8", "#4daf4a"),
-                   footnote_gp = gpar(col = "blue"),
-                   legend_name = "Group",
-                   legend_value = c("Trt 1", "Trt 2"),
-                   vertline_lty = c("dashed", "dotted"),
-                   vertline_col = c("#d6604d", "#bababa"),
+                   ci = gpar(col = c("#377eb8", "#4daf4a")),
+                   footnote = gpar(col = "blue"),
+                   vline = gpar(lty = c("dashed", "dotted"),
+                                   col = c("#d6604d", "#bababa")),
                    # Table cell padding, width 4 and heights 3
                    core = list(padding = unit(c(4, 3), "mm")))
 
@@ -229,16 +219,17 @@ p <- forest(dt[, c(1, 19, 23, 21, 20, 24, 22)],
             lower = list(dt$low_gp1,
                          dt$low_gp2,
                          dt$low_gp3,
-                         dt$low_gp4), 
+                         dt$low_gp4),
             upper = list(dt$hi_gp1,
                          dt$hi_gp2,
                          dt$hi_gp3,
                          dt$hi_gp4),
             ci_column = c(4, 7),
             ref_line = 1,
-            vert_line = c(0.5, 2),
             nudge_y = 0.4,
-            theme = tm)
+            style = st) |>
+  set_xaxis(vline = c(0.5, 2)) |>
+  set_labs(legend_title = "Group", legend_labels = c("Trt 1", "Trt 2"))
 
 plot(p)
 
@@ -250,26 +241,24 @@ dt$`Beta (95% CI)` <- ifelse(is.na(dt$est_gp2), "",
                              sprintf("%.2f (%.2f to %.2f)",
                                      dt$est_gp2, dt$low_gp2, dt$hi_gp2))
 
-tm <- forest_theme(arrow_type = "closed",
-                   arrow_label_just = "end")
-
 p <- forest(dt[, c(1, 21, 23, 22, 24)],
             est = list(dt$est_gp1,
                        dt$est_gp2),
             lower = list(dt$low_gp1,
-                         dt$low_gp2), 
+                         dt$low_gp2),
             upper = list(dt$hi_gp1,
                          dt$hi_gp2),
             ci_column = c(2, 4),
             ref_line = c(1, 0),
-            vert_line = list(c(0.3, 1.4), c(0.6, 2)),
-            x_trans = c("log", "none"),
-            arrow_lab = list(c("L1", "R1"), c("L2", "R2")),
+            nudge_y = 0.2,
+            style = forest_style(arrow_type = "closed",
+                                 arrow_label_just = "end")) |>
+  set_xaxis(x_trans = c("log", "none"),
             xlim = list(c(0, 3), c(-1, 3)),
             ticks_at = list(c(0.1, 0.5, 1, 2.5), c(-1, 0, 2)),
-            xlab = c("OR", "Beta"),
-            nudge_y = 0.2,
-            theme = tm)
+            vline = list(c(0.3, 1.4), c(0.6, 2))) |>
+  set_labs(arrow = list(c("L1", "R1"), c("L2", "R2")),
+           xlab = c("OR", "Beta"))
 
 plot(p)
 
@@ -292,7 +281,7 @@ dat <- data.frame(Dose = row.names(dat),
 dat$Box <- paste(rep(" ", 20), collapse = " ")
 
 # Draw a single group box plot
-tm <- forest_theme(ci_Theight = 0.2)
+st <- forest_style(ci_t_height = 0.2)
 
 p <- forest(dat[, c(1, 7)],
             est = dat$med,
@@ -307,11 +296,20 @@ p <- forest(dat[, c(1, 7)],
             # values of the lowhinge and uphinge will be used as row values
             index_args = c("lowhinge", "uphinge"), 
             gp_box = gpar(fill = "black", alpha = 0.4),
-            theme = tm
+            style = st
 )
 p
 
 ## ----eval=FALSE---------------------------------------------------------------
+# # Get width and height
+# p_wh <- get_wh(plot = p, unit = "in")
+# png('rplot.png', res = 300, width = p_wh[1], height = p_wh[2], units = "in")
+# p
+# dev.off()
+
+## ----eval=FALSE---------------------------------------------------------------
+# p <- set_style(p, fit = "width")
+# 
 # # Base method
 # png('rplot.png', res = 300, width = 7.5, height = 7.5, units = "in")
 # p
@@ -323,13 +321,6 @@ p
 #                 width = 7.5, height = 7.5, units = "in")
 
 ## ----eval=FALSE---------------------------------------------------------------
-# # Get width and height
-# p_wh <- get_wh(plot = p, unit = "in")
-# png('rplot.png', res = 300, width = p_wh[1], height = p_wh[2], units = "in")
-# p
-# dev.off()
-# 
-# # Or get scale
 # get_scale <- function(plot,
 #                       width_wanted,
 #                       height_wanted,
